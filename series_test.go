@@ -5,7 +5,7 @@ import (
 )
 
 func TestSeries(t *testing.T) {
-	x := NewSeries(HSBC)
+	x := NewSeries(HSBC, false)
 	if Round(x.Mean, 2) != 49.43 {
 		t.Error()
 	}
@@ -15,7 +15,7 @@ func TestSeries(t *testing.T) {
 	if Round(x.MAD, 2) != 1.41 {
 		t.Error()
 	}
-	y := NewSeries(HSI)
+	y := NewSeries(HSI, false)
 	r := x.Compare(y)
 	if Round(r.Covariance, 2) != 577.08 {
 		t.Error()
@@ -39,10 +39,10 @@ func BenchmarkBeta(b *testing.B) {
 	sands := make([]float64, len(SANDS)-1)
 	LinearReturns(HSI, hsi)
 	LinearReturns(SANDS, sands)
-	index := NewSeries(hsi)
+	index := NewSeries(hsi, false)
 	var r float64
 	for n := 0; n < b.N; n++ {
-		x := index.Compare(NewSeries(sands))
+		x := index.Compare(NewSeries(sands, false))
 		r = x.Gradient
 	}
 	dummy = r

@@ -9,6 +9,7 @@ import (
 type Series struct {
 	v        []float64
 	n        float64
+	sample   bool
 	Sum      float64 // Sum of the series.
 	Mean     float64 // Mean of the series.
 	MAD      float64 // Mean absolute deviation of the series.
@@ -19,12 +20,13 @@ type Series struct {
 
 // NewSeries makes a new Series for the given slice.
 //
-func NewSeries(v []float64) (x Series) {
+func NewSeries(v []float64, sample bool) (x Series) {
 	if len(v) == 0 {
 		panic("zero length dataset")
 	}
 	x.v = v
 	x.n = float64(len(v))
+	x.sample = sample
 	//
 	// Calculate mean.
 	//
@@ -41,6 +43,11 @@ func NewSeries(v []float64) (x Series) {
 		x.SumD2 += d * d
 	}
 	x.MAD /= x.n
+	if sample {
+		x.Variance = x.SumD2 / (x.n - 1)
+	} else {
+		x.Variance = x.SumD2 / x.n
+	}
 	x.Variance = x.SumD2 / x.n
 	x.StdDev = math.Sqrt(x.Variance)
 	return
@@ -84,6 +91,11 @@ func (x Series) Compare(y Series) (xy Analysis) {
 		dx := x.v[i] - x.Mean
 		dy := y.v[i] - y.Mean
 		sumdxdy += dx * dy
+	}
+	if x.sample {
+		xy.Covariance = sumdxdy / (x.n - 1)
+	} else {
+		xy.Covariance = sumdxdy / x.n
 	}
 	xy.Covariance = sumdxdy / x.n
 	xy.R = xy.Covariance / (x.StdDev * y.StdDev)
