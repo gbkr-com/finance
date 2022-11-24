@@ -21,8 +21,8 @@ type Series struct {
 // NewSeries makes a new Series for the given slice.
 //
 func NewSeries(v []float64, sample bool) (x Series) {
-	if len(v) == 0 {
-		panic("zero length dataset")
+	if len(v) < 2 {
+		panic("insufficient data")
 	}
 	x.v = v
 	x.n = float64(len(v))
