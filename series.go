@@ -4,7 +4,8 @@ import (
 	"math"
 )
 
-// Series is a wrapper for statistics on a slice of numbers.
+// Series the principal statistics on a series of numbers, for example price
+// returns.
 //
 type Series struct {
 	v        []float64
@@ -13,12 +14,17 @@ type Series struct {
 	Sum      float64 // Sum of the series.
 	Mean     float64 // Mean of the series.
 	MAD      float64 // Mean absolute deviation of the series.
-	SumD2    float64 // Sum of the square differences to the mean.
+	SumD2    float64 // Sum of the square differences from the mean.
 	Variance float64 // Variance of the series.
-	StdDev   float64 // Standard deviation of the series.
+	StdDev   float64 // Standard deviation of the series, a.k.a. volatility when this is a series of returns.
 }
 
-// NewSeries makes a new Series for the given slice.
+// NewSeries makes a new Series for the given []float64, calculating the principal
+// statistics on those numbers. If the series is a sample then the variance is
+// adjusted accordingly.
+//
+// The given slice must contain at least two numbers, otherwise this function
+// panics.
 //
 func NewSeries(v []float64, sample bool) (x Series) {
 	if len(v) < 2 {
@@ -80,7 +86,11 @@ type Analysis struct {
 	Intercept float64
 }
 
-// Compare returns the analysis of this series compared to the given series.
+// Compare returns the analysis of this series compared to the given series. If
+// this series was made as a sample then the covariance will also be calculated
+// as a sample.
+//
+// If the series differ in length then this function will panic.
 //
 func (x Series) Compare(y Series) (xy Analysis) {
 	if y.n != x.n {
